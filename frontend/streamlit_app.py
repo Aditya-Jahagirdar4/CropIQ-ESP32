@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 from model_utils_frontend import format_result
 
-# Load backend URL
 BACKEND = st.secrets["BACKEND_URL"]
 
 # ---- PAGE CONFIG ----
@@ -15,10 +14,10 @@ st.set_page_config(
 # ---- TITLE ----
 st.markdown("""
     <h1 style="margin-bottom: -10px;">CropIQ – Smart Plant Health Dashboard</h1>
-    <p style="color: #3c763d; font-size: 18px;">AI-powered leaf analysis & automated pesticide control</p>
+    <p style="color: #8CE38C; font-size: 18px;">AI-powered leaf analysis & automated pesticide control</p>
 """, unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---- LAYOUT ----
 col1, col2 = st.columns([1, 1])
@@ -27,17 +26,19 @@ col1, col2 = st.columns([1, 1])
 # LEFT PANEL — ESP32 LATEST DATA
 # =========================================================
 with col1:
-    st.markdown("### 🌱 ESP32 Latest Detection")
+
+    st.markdown("""
+        <h3 style='color:#9aff9a;'>🌱 ESP32 Latest Detection</h3>
+    """, unsafe_allow_html=True)
 
     with st.container():
         st.markdown("""
-            <div style='padding:15px; border-radius:15px; background:#F3FFF3; border:1px solid #CDECCD;'>
+            <div style='padding:15px; border-radius:15px; background:#0B2E0B; border:1px solid #2F6F2F;'>
         """, unsafe_allow_html=True)
 
         if st.button("🔄 Refresh Latest Data"):
-            pass  # Refresh handled automatically
+            pass
 
-        # Fetch latest data
         try:
             res = requests.get(f"{BACKEND}/latest").json()
             data = format_result(res)
@@ -55,7 +56,19 @@ with col1:
             st.write(f"**📊 Confidence:** {data['confidence']}%")
             st.write(f"**🔥 Infection Level:** {data['infection']}%")
             st.write(f"**🧪 Recommended Pesticide:** {data['pesticide']}")
-            st.write(f"**💧 Dose for 100 ml:** `{data['dose']} ml`")
+
+            # ---- CUSTOM COLORED BADGE FOR DOSE ----
+            st.markdown(
+                f"""
+                <p style="font-size: 16px;">
+                    <b>💧 Dose for 100 ml:</b> 
+                    <span style="background:#1C5C1C; padding:5px 10px; border-radius:6px; color:#9aff9a;">
+                        {data['dose']} ml
+                    </span>
+                </p>
+                """,
+                unsafe_allow_html=True
+            )
 
             if st.button("🧴 Send Spray Command"):
                 requests.post(f"{BACKEND}/spray", params={"duration_ms": 2000})
@@ -67,11 +80,14 @@ with col1:
 # RIGHT PANEL — MANUAL IMAGE TEST
 # =========================================================
 with col2:
-    st.markdown("### 📷 Manual Leaf Test")
+
+    st.markdown("""
+        <h3 style='color:#9ab3ff;'>📷 Manual Leaf Test</h3>
+    """, unsafe_allow_html=True)
 
     with st.container():
         st.markdown("""
-            <div style='padding:15px; border-radius:15px; background:#F7FAFF; border:1px solid #D6E3FF;'>
+            <div style='padding:15px; border-radius:15px; background:#0E1A33; border:1px solid #2F4B7F;'>
         """, unsafe_allow_html=True)
 
         uploaded = st.file_uploader("Upload a leaf image", type=["jpg", "jpeg", "png"])
@@ -79,9 +95,7 @@ with col2:
         if uploaded:
             st.image(uploaded, width=250, caption="Uploaded Image Preview")
 
-            files = {
-                "file": (uploaded.name, uploaded.read(), uploaded.type)
-            }
+            files = {"file": (uploaded.name, uploaded.read(), uploaded.type)}
 
             try:
                 result = requests.post(f"{BACKEND}/predict", files=files).json()
