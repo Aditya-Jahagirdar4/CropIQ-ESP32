@@ -12,17 +12,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---- TOP LOGO + TITLE ----
-col_logo, col_title = st.columns([1, 5])
-
-with col_logo:
-    st.image("assets/cropiq_logo.png", width=120)
-
-with col_title:
-    st.markdown("""
-        <h1 style="margin-bottom: -10px;">CropIQ – Smart Plant Health Dashboard</h1>
-        <p style="color: #3c763d; font-size: 18px;">AI-powered leaf analysis & automated pesticide control</p>
-    """, unsafe_allow_html=True)
+# ---- TITLE ----
+st.markdown("""
+    <h1 style="margin-bottom: -10px;">CropIQ – Smart Plant Health Dashboard</h1>
+    <p style="color: #3c763d; font-size: 18px;">AI-powered leaf analysis & automated pesticide control</p>
+""", unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -41,11 +35,15 @@ with col1:
         """, unsafe_allow_html=True)
 
         if st.button("🔄 Refresh Latest Data"):
-            pass
+            pass  # Refresh handled automatically
 
-        # Fetch latest result
-        res = requests.get(f"{BACKEND}/latest").json()
-        data = format_result(res)
+        # Fetch latest data
+        try:
+            res = requests.get(f"{BACKEND}/latest").json()
+            data = format_result(res)
+        except:
+            st.error("Failed to connect to backend.")
+            data = None
 
         if not data:
             st.warning("No data yet — ESP32 has not uploaded an image.")
@@ -85,10 +83,12 @@ with col2:
                 "file": (uploaded.name, uploaded.read(), uploaded.type)
             }
 
-            result = requests.post(f"{BACKEND}/predict", files=files).json()
-
-            st.markdown("### 🧠 Model Output")
-            st.json(result)
+            try:
+                result = requests.post(f"{BACKEND}/predict", files=files).json()
+                st.markdown("### 🧠 Model Output")
+                st.json(result)
+            except:
+                st.error("Error contacting backend for prediction.")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
