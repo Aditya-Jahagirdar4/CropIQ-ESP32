@@ -1,4 +1,4 @@
-<img width="720" height="1600" alt="1" src="https://github.com/user-attachments/assets/6066c071-3c8a-4d24-8ef8-e840fea0a1a3" /># CropIQ
+# CropIQ
 
 AI-driven crop health analytics and decision-support engine.
 
